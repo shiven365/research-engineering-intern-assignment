@@ -21,22 +21,14 @@ export default function FollowUpSuggestions({ response, onSelect }: Props) {
   if (!suggestions.length) return null
 
   return (
-    <div style={{ display: 'grid', gap: 8, marginTop: 8 }}>
-      <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.6 }}>Ask Next</div>
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+    <div className="followup-wrap">
+      <div className="followup-label">Ask Next</div>
+      <div className="followup-list">
       {suggestions.map((s) => (
         <button
           key={s}
           onClick={() => onSelect(s)}
-          style={{
-            border: '1px solid var(--border-bright)',
-            background: 'linear-gradient(180deg, rgba(106,162,255,0.12) 0%, rgba(106,162,255,0.05) 100%)',
-            color: 'var(--text-primary)',
-            borderRadius: 999,
-            padding: '6px 10px',
-            cursor: 'pointer',
-            fontSize: 12,
-          }}
+          className="chip-btn"
         >
           {s}
         </button>

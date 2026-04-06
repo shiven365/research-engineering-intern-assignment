@@ -145,23 +145,12 @@ export default function TopBar({ title }: Props) {
     .join(' · ')
 
   return (
-    <header
-      className="scanline"
-      style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 20,
-        backdropFilter: 'blur(8px)',
-        background: 'rgba(10,10,15,0.85)',
-        borderBottom: '1px solid var(--border)',
-        padding: '12px 16px',
-      }}
-    >
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', gap: 16, alignItems: 'center' }}>
-        <h2 style={{ fontSize: 18 }}>{title}</h2>
+    <header className="topbar scanline">
+      <div className="topbar-grid">
+        <h2 className="topbar-title">{title}</h2>
 
-        <div ref={searchWrapperRef} style={{ position: 'relative' }}>
-          <Search size={16} style={{ position: 'absolute', left: 10, top: 12, color: 'var(--text-muted)' }} />
+        <div ref={searchWrapperRef} className="search-wrap">
+          <Search size={16} className="search-icon" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -169,71 +158,36 @@ export default function TopBar({ title }: Props) {
               if (hasSearchContext) setIsDropdownOpen(true)
             }}
             placeholder="Search narratives semantically..."
-            style={{
-              width: '100%',
-              padding: '10px 12px 10px 34px',
-              borderRadius: 6,
-              border: hasSearchContext ? '1px solid var(--border-bright)' : '1px solid var(--border)',
-              background: 'var(--bg-card)',
-              color: 'var(--text-primary)',
-            }}
+            className={`ui-input search-input${hasSearchContext ? ' is-active' : ''}`}
           />
           {(isSearching || searchError || (isDropdownOpen && hasSearchContext)) ? (
-            <div
-              style={{
-                position: 'absolute',
-                left: 0,
-                right: 0,
-                top: 'calc(100% + 8px)',
-                border: '1px solid var(--border)',
-                borderRadius: 8,
-                background: 'var(--bg-secondary)',
-                boxShadow: '0 12px 30px rgba(0, 0, 0, 0.4)',
-                overflow: 'hidden',
-                zIndex: 30,
-              }}
-            >
-              <div
-                style={{
-                  padding: '8px 10px',
-                  borderBottom: '1px solid var(--border)',
-                  fontSize: 12,
-                  color: 'var(--text-secondary)',
-                  background: 'rgba(255,255,255,0.01)',
-                }}
-              >
+            <div className="search-dropdown">
+              <div className="search-dropdown-header">
                 {isSearching ? 'Searching...' : statusLine || 'No active filters'}
               </div>
 
               {searchError ? (
-                <div style={{ padding: '10px 12px', fontSize: 13, color: 'var(--danger)' }}>
-                  {searchError}
-                </div>
+                <div className="search-dropdown-error">{searchError}</div>
               ) : null}
 
               {!isSearching && !searchError && resultPreview.length === 0 ? (
-                <div style={{ padding: '10px 12px', fontSize: 13, color: 'var(--text-secondary)' }}>
+                <div className="search-dropdown-empty">
                   No posts found for the current search filters.
                 </div>
               ) : null}
 
               {!searchError && resultPreview.length > 0 ? (
-                <div style={{ maxHeight: 260, overflowY: 'auto' }}>
+                <div className="search-results">
                   {resultPreview.map((row, index) => (
                     <a
                       key={row.id}
                       href={toAbsoluteRedditLink(row.url, row.permalink) || '#'}
                       target="_blank"
                       rel="noreferrer"
-                      style={{
-                        display: 'block',
-                        padding: '9px 10px',
-                        borderBottom: index === resultPreview.length - 1 ? 'none' : '1px solid var(--border)',
-                        color: 'inherit',
-                      }}
+                      className="search-result-item"
                     >
-                      <div style={{ fontSize: 13, color: 'var(--text-primary)' }}>{row.title}</div>
-                      <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>
+                      <div className="search-result-title">{row.title}</div>
+                      <div className="search-result-meta">
                         r/{row.subreddit}
                         {row.date_only ? ` · ${row.date_only.slice(0, 10)}` : ''}
                       </div>
@@ -243,7 +197,7 @@ export default function TopBar({ title }: Props) {
               ) : null}
 
               {!isSearching && !searchError && resultCount > resultPreview.length ? (
-                <div style={{ padding: '8px 10px', borderTop: '1px solid var(--border)', fontSize: 11, color: 'var(--text-muted)' }}>
+                <div className="search-dropdown-footer">
                   Showing top {resultPreview.length} of {resultCount} matches.
                 </div>
               ) : null}
@@ -251,18 +205,11 @@ export default function TopBar({ title }: Props) {
           ) : null}
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+        <div className="topbar-controls">
           <select
             value={selectedSubreddit}
             onChange={(e) => setSelectedSubreddit(e.target.value)}
-            style={{
-              borderRadius: 6,
-              border: '1px solid var(--border)',
-              background: 'var(--bg-card)',
-              color: 'var(--text-primary)',
-              padding: '8px 10px',
-              width: 180,
-            }}
+            className="ui-select"
           >
             <option value="">All subreddits</option>
             {subreddits.slice(0, 25).map((s) => (
@@ -275,27 +222,13 @@ export default function TopBar({ title }: Props) {
             type="date"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
-            style={{
-              borderRadius: 6,
-              border: '1px solid var(--border)',
-              background: 'var(--bg-card)',
-              color: 'var(--text-primary)',
-              padding: '8px 10px',
-            }}
+            className="ui-date"
           />
           <button
             type="button"
             onClick={resetFilters}
             disabled={!hasSearchContext}
-            style={{
-              borderRadius: 6,
-              border: hasSearchContext ? '1px solid var(--border-bright)' : '1px solid var(--border)',
-              background: hasSearchContext ? 'rgba(0,212,255,0.08)' : 'var(--bg-card)',
-              color: hasSearchContext ? 'var(--accent-primary)' : 'var(--text-muted)',
-              padding: '8px 12px',
-              cursor: hasSearchContext ? 'pointer' : 'not-allowed',
-              fontWeight: 500,
-            }}
+            className={`btn btn-ghost${hasSearchContext ? ' is-active' : ''}`}
           >
             Reset
           </button>

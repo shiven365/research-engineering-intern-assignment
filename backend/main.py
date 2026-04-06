@@ -7,6 +7,7 @@ from typing import Any, Optional
 import faiss
 import numpy as np
 import pandas as pd
+from dotenv import load_dotenv
 from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -18,6 +19,9 @@ from llm.summarizer import generate_timeseries_summary
 from ml.clustering import cluster_posts
 from ml.embeddings import build_index, load_index, semantic_search
 from ml.network import build_subreddit_network, graph_to_json
+
+
+load_dotenv(dotenv_path=Path(__file__).resolve().parent / ".env")
 
 
 DATA_PATH = os.getenv("DATA_PATH", str(Path(__file__).resolve().parent / "data.jsonl"))
@@ -37,11 +41,34 @@ STATE: dict[str, Any] = {
     "index": None,
     "id_map": None,
     "embedding_matrix": None,
+    "id_to_idx": None,
+    "network_graph": None,
+    "network_cache": {},
+    "cluster_cache": {},
 }
+
+
+def _cache_put(cache: dict[Any, Any], key: Any, value: Any, max_size: int) -> None:
+    cache[key] = value
+    if len(cache) > max_size:
+        first_key = next(iter(cache))
+        cache.pop(first_key, None)
 
 
 def _safe_response(data: Any = None, error: Optional[str] = None, **extra: Any) -> dict[str, Any]:
     return {"data": data, "error": error, **extra}
+
+
+def _friendly_llm_error(exc: Exception) -> str:
+    message = str(exc)
+    lower = message.lower()
+    if "credit balance is too low" in lower:
+        return "Anthropic API credits are too low. Please add credits in Plans & Billing, then retry."
+    if "authentication" in lower or "invalid api key" in lower or "unauthorized" in lower:
+        return "Anthropic authentication failed. Please verify ANTHROPIC_API_KEY and restart backend."
+    if "timed out" in lower or "connection" in lower or "network" in lower:
+        return "Could not reach Anthropic API due to a network issue. Please retry in a moment."
+    return "LLM request failed. Please verify Anthropic account status and try again."
 
 
 def _load_dataframe(conn) -> pd.DataFrame:
@@ -140,15 +167,23 @@ async def startup() -> None:
             index, id_map, embedding_matrix = build_index(texts, post_ids)
             STATE["embedding_matrix"] = embedding_matrix
         else:
-            STATE["embedding_matrix"] = None
+            vectors = index.reconstruct_n(0, index.ntotal)
+            STATE["embedding_matrix"] = np.array(vectors, dtype=np.float32)
 
         STATE["index"] = index
         STATE["id_map"] = id_map
+        STATE["id_to_idx"] = {pid: i for i, pid in enumerate(id_map)}
     except Exception:
         # Keep API online even if embedding stack is unavailable.
         STATE["index"] = None
         STATE["id_map"] = []
         STATE["embedding_matrix"] = None
+        STATE["id_to_idx"] = {}
+
+    try:
+        STATE["network_graph"] = build_subreddit_network(df)
+    except Exception:
+        STATE["network_graph"] = None
 
 
 @app.get("/health")
@@ -330,8 +365,16 @@ async def network(
     centrality_metric: str = Query("pagerank", pattern="^(pagerank|betweenness)$"),
 ):
     try:
-        df = STATE["df"]
-        graph = build_subreddit_network(df)
+        cache_key = (int(min_edge_weight), remove_node or "", centrality_metric)
+        cached = STATE["network_cache"].get(cache_key)
+        if cached is not None:
+            return _safe_response(cached)
+
+        graph = STATE.get("network_graph")
+        if graph is None:
+            graph = build_subreddit_network(STATE["df"])
+            STATE["network_graph"] = graph
+
         graph_json = graph_to_json(graph, remove_node=remove_node)
 
         if min_edge_weight > 1:
@@ -341,6 +384,7 @@ async def network(
             graph_json["message"] = "No connections found with current filters"
 
         graph_json["centrality_metric"] = centrality_metric
+        _cache_put(STATE["network_cache"], cache_key, graph_json, max_size=64)
         return _safe_response(graph_json)
     except Exception as e:
         return _safe_response(None, str(e))
@@ -352,11 +396,12 @@ async def clusters(
     subreddit: Optional[str] = None,
 ):
     try:
-        df = STATE["df"]
+        source_df = STATE["df"]
+        filtered_df = source_df
         if subreddit:
-            df = df[df["subreddit"] == subreddit]
+            filtered_df = filtered_df[filtered_df["subreddit"] == subreddit]
 
-        if df.empty:
+        if filtered_df.empty:
             return _safe_response({"coords": [], "labels": [], "cluster_topics": {}, "warnings": ["No data."]})
 
         if STATE.get("index") is None:
@@ -369,16 +414,33 @@ async def clusters(
                 }
             )
 
-        texts = df["text_combined"].fillna("").tolist()
-        vectors = STATE["index"].reconstruct_n(0, STATE["index"].ntotal)
-        id_to_idx = {pid: i for i, pid in enumerate(STATE["id_map"])}
-        selected_idx = [id_to_idx[pid] for pid in df["id"].tolist() if pid in id_to_idx]
-        emb = np.array(vectors)[selected_idx]
+        cache_key = (subreddit or "__all__", int(n_clusters) if n_clusters is not None else 0)
+        cached = STATE["cluster_cache"].get(cache_key)
+        if cached is not None:
+            return _safe_response(cached)
+
+        embedding_matrix = STATE.get("embedding_matrix")
+        id_to_idx = STATE.get("id_to_idx") or {}
+        if embedding_matrix is None or not len(id_to_idx):
+            vectors = STATE["index"].reconstruct_n(0, STATE["index"].ntotal)
+            embedding_matrix = np.array(vectors, dtype=np.float32)
+            STATE["embedding_matrix"] = embedding_matrix
+            STATE["id_to_idx"] = {pid: i for i, pid in enumerate(STATE["id_map"])}
+            id_to_idx = STATE["id_to_idx"]
+
+        post_ids = filtered_df["id"].tolist()
+        selected_idx = [id_to_idx[pid] for pid in post_ids if pid in id_to_idx]
+        if not selected_idx:
+            return _safe_response({"coords": [], "labels": [], "cluster_topics": {}, "warnings": ["No embeddings found."]})
+
+        texts = filtered_df["text_combined"].fillna("").tolist()
+        emb = embedding_matrix[selected_idx]
 
         result = cluster_posts(emb, texts, n_clusters=n_clusters)
-        result["post_ids"] = df["id"].tolist()
-        result["titles"] = df["title"].tolist()
-        result["subreddits"] = df["subreddit"].tolist()
+        result["post_ids"] = post_ids
+        result["titles"] = filtered_df["title"].tolist()
+        result["subreddits"] = filtered_df["subreddit"].tolist()
+        _cache_put(STATE["cluster_cache"], cache_key, result, max_size=24)
         return _safe_response(result)
     except Exception as e:
         return _safe_response(None, str(e))
@@ -431,8 +493,8 @@ async def chat(body: ChatMessage):
 
         try:
             response_text = llm_chat(body.query, retrieved_posts, body.history)
-        except Exception:
-            response_text = "I could not reach the language model right now. Try again shortly."
+        except Exception as e:
+            response_text = _friendly_llm_error(e)
 
         return _safe_response({"response": response_text, "retrieved_posts": retrieved_posts})
     except Exception as e:

@@ -35,8 +35,8 @@ export default function ChatPanel({ onRetrieved }: Props) {
   }
 
   return (
-    <div className="card" style={{ height: 620, display: 'grid', gridTemplateRows: '1fr auto', gap: 12 }}>
-      <div style={{ overflowY: 'auto', display: 'grid', gap: 10, paddingRight: 4 }}>
+    <div className="card chat-panel">
+      <div className="chat-messages">
         {history.map((m, i) => (
           <div key={i}>
             <MessageBubble role={m.role} content={m.content} />
@@ -44,11 +44,11 @@ export default function ChatPanel({ onRetrieved }: Props) {
           </div>
         ))}
         {loading ? (
-          <div style={{ color: 'var(--text-secondary)', fontSize: 13, padding: '4px 2px' }}>NarrativeScope is analyzing...</div>
+          <div className="chat-loading">NarrativeScope is analyzing...</div>
         ) : null}
       </div>
 
-      <div style={{ display: 'flex', gap: 8 }}>
+      <div className="chat-composer">
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -59,29 +59,12 @@ export default function ChatPanel({ onRetrieved }: Props) {
             }
           }}
           placeholder="Ask about narrative spread..."
-          style={{
-            width: '100%',
-            minHeight: 70,
-            background: 'var(--bg-card)',
-            color: 'var(--text-primary)',
-            border: '1px solid var(--border)',
-            borderRadius: 10,
-            padding: 10,
-            resize: 'none',
-          }}
+          className="ui-textarea"
         />
         <button
           onClick={() => send()}
           disabled={loading}
-          style={{
-            minWidth: 100,
-            borderRadius: 10,
-            border: '1px solid var(--accent-primary)',
-            background: 'linear-gradient(180deg, rgba(72,216,176,0.22) 0%, rgba(72,216,176,0.12) 100%)',
-            color: 'var(--text-primary)',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            fontWeight: 600,
-          }}
+          className="btn btn-primary chat-send"
         >
           Send
         </button>

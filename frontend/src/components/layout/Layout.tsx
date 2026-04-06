@@ -9,11 +9,11 @@ type Props = {
 
 export default function Layout({ title, children }: Props) {
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
+    <div className="app-shell">
       <Sidebar />
-      <main style={{ marginLeft: 240, width: 'calc(100% - 240px)' }}>
+      <main className="app-main">
         <TopBar title={title} />
-        <div style={{ padding: 18 }}>{children}</div>
+        <div className="app-content">{children}</div>
       </main>
     </div>
   )

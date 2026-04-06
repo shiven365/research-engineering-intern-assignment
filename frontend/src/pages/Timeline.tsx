@@ -13,16 +13,18 @@ export default function Timeline() {
   return (
     <Layout title="Timeline">
       <div className="card" style={{ marginBottom: 12 }}>
-        <label style={{ marginRight: 8 }}>Metric:</label>
-        <select
-          value={metric}
-          onChange={(e) => setMetric(e.target.value)}
-          style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}
-        >
-          <option value="post_count">Post Count</option>
-          <option value="avg_score">Average Score</option>
-          <option value="engagement">Engagement</option>
-        </select>
+        <div className="toolbar">
+          <label className="toolbar-label">Metric:</label>
+          <select
+            value={metric}
+            onChange={(e) => setMetric(e.target.value)}
+            className="ui-select"
+          >
+            <option value="post_count">Post Count</option>
+            <option value="avg_score">Average Score</option>
+            <option value="engagement">Engagement</option>
+          </select>
+        </div>
       </div>
       {loading ? <Skeleton height={320} /> : null}
       {error ? <ErrorState message={error} /> : null}

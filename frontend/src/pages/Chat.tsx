@@ -14,43 +14,28 @@ export default function ChatPage() {
 
   return (
     <Layout title="Intelligence">
-      <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: 14 }}>
+      <div className="chat-layout">
         <ChatPanel onRetrieved={setRetrieved} />
-        <div className="card" style={{ height: 620, overflowY: 'auto' }}>
-          <h3 style={{ marginBottom: 10 }}>Recommended Posts</h3>
-          {!retrieved.length ? <div style={{ color: 'var(--text-secondary)' }}>No recommendations yet. Ask a question to analyze narrative patterns.</div> : null}
-          <div style={{ display: 'grid', gap: 8 }}>
+        <div className="card recs-panel">
+          <h3 className="card-title">Recommended Posts</h3>
+          {!retrieved.length ? <div className="recs-empty">No recommendations yet. Ask a question to analyze narrative patterns.</div> : null}
+          <div className="recs-list">
             {retrieved.map((p, i) => (
-              <div
-                key={`${p.id || p.title}-${i}`}
-                style={{
-                  border: '1px solid var(--border)',
-                  borderRadius: 10,
-                  padding: 10,
-                  background: 'rgba(255,255,255,0.01)',
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'flex-start' }}>
-                  <div style={{ fontWeight: 600, lineHeight: 1.4 }}>{p.title}</div>
+              <div key={`${p.id || p.title}-${i}`} className="rec-item">
+                <div className="rec-item-header">
+                  <div className="rec-item-title">{p.title}</div>
                   {toAbsoluteRedditLink(p.url, p.permalink) ? (
                     <a
                       href={toAbsoluteRedditLink(p.url, p.permalink)}
                       target="_blank"
                       rel="noreferrer"
-                      style={{
-                        border: '1px solid var(--border-bright)',
-                        borderRadius: 999,
-                        padding: '4px 10px',
-                        fontSize: 12,
-                        color: 'var(--accent-primary)',
-                        whiteSpace: 'nowrap',
-                      }}
+                      className="link-pill"
                     >
                       Open Post
                     </a>
                   ) : null}
                 </div>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
+                <div className="rec-item-meta">
                   r/{p.subreddit} · similarity {Number(p.similarity_score || 0).toFixed(2)} · score {p.score}
                 </div>
               </div>

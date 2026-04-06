@@ -34,6 +34,9 @@ If no relevant posts were found, say so clearly and suggest the user try differe
 
 
 def chat(query: str, retrieved_posts: list[dict[str, Any]], conversation_history: list[dict[str, Any]]) -> str:
+    if not os.getenv("ANTHROPIC_API_KEY"):
+        return "LLM provider is not configured (missing ANTHROPIC_API_KEY)."
+
     if retrieved_posts:
         context = "RETRIEVED POSTS (ranked by semantic relevance):\n\n"
         for i, post in enumerate(retrieved_posts[:8], 1):

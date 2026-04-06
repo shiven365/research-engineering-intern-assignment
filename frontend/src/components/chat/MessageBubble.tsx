@@ -28,7 +28,7 @@ function linkify(content: string) {
         href={toHref(clean)}
         target="_blank"
         rel="noreferrer"
-        style={{ color: 'var(--accent-secondary)', textDecoration: 'underline' }}
+        className="message-link"
       >
         {clean}
       </a>
@@ -39,21 +39,8 @@ function linkify(content: string) {
 export default function MessageBubble({ role, content }: Props) {
   const user = role === 'user'
   return (
-    <div style={{ display: 'flex', justifyContent: user ? 'flex-end' : 'flex-start' }}>
-      <div
-        style={{
-          maxWidth: '80%',
-          padding: '10px 12px',
-          borderRadius: 12,
-          background: user
-            ? 'linear-gradient(180deg, rgba(72,216,176,0.22) 0%, rgba(72,216,176,0.14) 100%)'
-            : 'linear-gradient(180deg, rgba(17,29,51,0.95) 0%, rgba(14,24,43,0.95) 100%)',
-          border: `1px solid ${user ? 'var(--accent-primary)' : 'var(--border)'}`,
-          whiteSpace: 'pre-wrap',
-          wordBreak: 'break-word',
-          lineHeight: 1.55,
-        }}
-      >
+    <div className={`message-row ${user ? 'user' : 'assistant'}`}>
+      <div className={`message-bubble ${user ? 'user' : 'assistant'}`}>
         {linkify(content)}
       </div>
     </div>

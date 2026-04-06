@@ -22,7 +22,8 @@ export default function ClustersPage() {
   return (
     <Layout title="Topics">
       <div className="card" style={{ marginBottom: 12 }}>
-        <label>Cluster count: {nClusters}</label>
+        <div className="stack-sm">
+          <label className="toolbar-label">Cluster count: {nClusters}</label>
         <input
           type="range"
           min={2}
@@ -31,9 +32,10 @@ export default function ClustersPage() {
           onChange={(e) => setNClusters(Number(e.target.value))}
           style={{ width: '100%' }}
         />
-        <button onClick={() => run()} style={{ marginTop: 10 }}>
+          <button className="btn btn-primary" onClick={() => run()}>
           Run clustering
         </button>
+        </div>
       </div>
 
       {loading ? <Skeleton height={450} /> : null}

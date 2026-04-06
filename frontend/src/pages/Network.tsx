@@ -18,14 +18,16 @@ export default function NetworkPage() {
 
   return (
     <Layout title="Network">
-      <div className="card" style={{ marginBottom: 12, display: 'flex', gap: 12, alignItems: 'center' }}>
-        <label>Min edge weight: {minEdge}</label>
-        <input type="range" min={1} max={10} value={minEdge} onChange={(e) => setMinEdge(Number(e.target.value))} />
-        <select value={metric} onChange={(e) => setMetric(e.target.value as 'pagerank' | 'betweenness')}>
+      <div className="card" style={{ marginBottom: 12 }}>
+        <div className="toolbar">
+          <label className="toolbar-label">Min edge weight: {minEdge}</label>
+          <input type="range" min={1} max={10} value={minEdge} onChange={(e) => setMinEdge(Number(e.target.value))} />
+          <select className="ui-select" value={metric} onChange={(e) => setMetric(e.target.value as 'pagerank' | 'betweenness')}>
           <option value="pagerank">PageRank</option>
           <option value="betweenness">Betweenness</option>
         </select>
-        <button onClick={removeTop}>Remove top node</button>
+          <button className="btn btn-secondary" onClick={removeTop}>Remove top node</button>
+        </div>
       </div>
       {loading ? <Skeleton height={450} /> : null}
       {error ? <ErrorState message={error} /> : null}

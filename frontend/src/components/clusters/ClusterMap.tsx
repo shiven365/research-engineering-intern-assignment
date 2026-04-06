@@ -38,7 +38,7 @@ export default function ClusterMap({ coords, labels, titles, subreddits, cluster
   }))
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16 }}>
+    <div className="split-grid">
       <div className="card" style={{ height: 520 }}>
         <ResponsiveContainer>
           <ScatterChart>
@@ -47,7 +47,13 @@ export default function ClusterMap({ coords, labels, titles, subreddits, cluster
             <YAxis dataKey="y" stroke="var(--text-secondary)" />
             <Tooltip
               cursor={{ strokeDasharray: '3 3' }}
-              contentStyle={{ background: '#13131f', border: '1px solid #2a2a4a' }}
+              contentStyle={{
+                background: '#13131f',
+                border: '1px solid #2a2a4a',
+                color: '#e8ecff',
+              }}
+              labelStyle={{ color: '#e8ecff' }}
+              itemStyle={{ color: '#e8ecff' }}
             />
             <Legend />
             {byCluster.map((clusterObj, i) => (
@@ -62,10 +68,10 @@ export default function ClusterMap({ coords, labels, titles, subreddits, cluster
         </ResponsiveContainer>
       </div>
       <div className="card">
-        <h3 style={{ marginBottom: 10 }}>Cluster Topics</h3>
+        <h3 className="card-title">Cluster Topics</h3>
         <div style={{ display: 'grid', gap: 8 }}>
           {Object.entries(clusterTopics).map(([k, v]) => (
-            <div key={k} style={{ border: '1px solid var(--border)', borderRadius: 6, padding: 8 }}>
+            <div key={k} style={{ border: '1px solid var(--border)', borderRadius: 10, padding: 10, background: 'rgba(255,255,255,0.01)' }}>
               <div style={{ fontFamily: 'var(--font-data)', marginBottom: 4 }}>
                 {k === '-1' ? 'Unclustered' : `Cluster ${k}`}
               </div>

@@ -28,7 +28,7 @@ export default function NetworkGraph({ graph }: Props) {
   }
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, height: 520 }}>
+    <div className="split-grid" style={{ height: 520 }}>
       <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
         <ForceGraph2D
           graphData={data as any}
@@ -40,10 +40,10 @@ export default function NetworkGraph({ graph }: Props) {
         />
       </div>
       <div className="card">
-        <div style={{ fontFamily: 'var(--font-display)', marginBottom: 8 }}>Node Details</div>
+        <div className="card-title">Node Details</div>
         {selectedNode ? (
           <div style={{ display: 'grid', gap: 6 }}>
-            <div><strong>{selectedNode.id}</strong></div>
+            <div style={{ fontWeight: 700 }}>{selectedNode.id}</div>
             <div>Subscribers: {selectedNode.subscribers}</div>
             <div>Posts: {selectedNode.post_count}</div>
             <div>Avg score: {selectedNode.avg_score}</div>

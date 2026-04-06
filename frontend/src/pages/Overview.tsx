@@ -27,15 +27,15 @@ export default function Overview() {
       {loading ? <Skeleton height={200} /> : null}
       {error ? <ErrorState message={error} /> : null}
       {!loading && !error && data ? (
-        <div style={{ display: 'grid', gap: 16 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+        <div className="stack-md">
+          <div className="grid-stats">
             <StatBadge label="Total Posts" value={data.total_posts} />
             <StatBadge label="Unique Authors" value={data.unique_authors} />
             <StatBadge label="Unique Subreddits" value={data.unique_subreddits} />
             <StatBadge label="Date Start" value={data.date_range?.start?.slice(0, 10) || '-'} />
           </div>
           <div className="card animate-in">
-            <h3 style={{ marginBottom: 10 }}>Top Subreddits by Posts</h3>
+            <h3 className="card-title">Top Subreddits by Posts</h3>
             <EngagementChart data={chartData} />
           </div>
         </div>
