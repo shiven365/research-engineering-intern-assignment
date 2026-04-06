@@ -1,82 +1,126 @@
 # NarrativeScope
 
-NarrativeScope is a Social Media Narrative Intelligence Dashboard for studying how political narratives spread across ideologically diverse Reddit communities. The case study focuses on cross-subreddit coordination and influence patterns using semantic retrieval, topic clustering, network centrality, and LLM-assisted analysis.
+NarrativeScope is a Streamlit-based social media narrative intelligence platform that analyzes how narratives spread across politically diverse Reddit communities. It combines semantic retrieval, clustering, network analysis, and AI-assisted summaries in a single dashboard.
 
-## Live Demo
+## Publicly Hosted Web Platform
 
-- Frontend: Add your deployed Vercel URL here
-- Backend: Add your deployed Render URL here
-- Screenshot: Add a dashboard screenshot after deployment
+- Live URL: https://YOUR-APP-NAME.streamlit.app
 
-## Architecture Diagram
+## Screenshots
+
+Replace these files with your final screenshots in `docs/screenshots/`.
+
+### 1. Landing Page
+
+![Landing Page](docs/screenshots/01-landing-page.png)
+
+### 2. Overview Dashboard
+
+![Overview Dashboard](docs/screenshots/02-overview-dashboard.png)
+
+### 3. Timeline Analysis
+
+![Timeline Analysis](docs/screenshots/03-timeline-analysis.png)
+
+### 4. Network Explorer
+
+![Network Explorer](docs/screenshots/04-network-explorer.png)
+
+### 5. AI Chat Assistant
+
+![AI Chat Assistant](docs/screenshots/05-ai-chat.png)
+
+## Key Features
+
+- Multi-page Streamlit app for Overview, Timeline, Network, Clusters, and Chat.
+- Semantic search on Reddit post text using embeddings + FAISS.
+- Topic clustering using UMAP + HDBSCAN/KMeans.
+- Subreddit relationship graph with PageRank, betweenness, and Louvain communities.
+- AI assistant for exploratory questions with graceful fallback when LLM service is unavailable.
+
+## Architecture
 
 ```mermaid
 graph LR
-  A[data.jsonl] --> B[FastAPI]
-  B --> C[DuckDB posts table]
-  C --> D[Embeddings all-MiniLM-L6-v2]
-  D --> E[FAISS IndexFlatIP]
-  C --> F[UMAP + HDBSCAN]
-  C --> G[NetworkX + Louvain]
-  C --> H[Time-series Aggregator]
-  E --> I[RAG Retriever]
-  I --> J[Claude Sonnet 4]
-  H --> J
-  B --> K[React Frontend]
+  A[data.jsonl] --> B[DuckDB posts table]
+  B --> C[Embeddings all-MiniLM-L6-v2]
+  C --> D[FAISS IndexFlatIP]
+  B --> E[UMAP + HDBSCAN]
+  B --> F[NetworkX + Louvain]
+  B --> G[Time-series Aggregator]
+  D --> H[RAG Retriever]
+  H --> I[Claude Sonnet 4]
+  G --> I
+  B --> J[Streamlit Multi-page App]
 ```
 
-## ML/AI Components
+## ML/AI Stack
 
-- Embeddings: `all-MiniLM-L6-v2`, 384-dim, cosine similarity, `sentence-transformers` library
-- Vector Search: FAISS `IndexFlatIP`, inner product on L2-normalized vectors
-- Dimensionality Reduction: UMAP, 2 components, cosine metric, `umap-learn` library
-- Clustering: HDBSCAN, `min_cluster_size=5`, `min_samples=3`, `hdbscan` library
-- Network Centrality: PageRank + Betweenness, `networkx` library
-- Community Detection: Louvain algorithm, `python-louvain` library
-- LLM Summaries: Claude `claude-sonnet-4-20250514`, dynamic prompting based on actual data
-- Chatbot: RAG pattern, semantic retrieval + Claude generation
+- Embeddings: `all-MiniLM-L6-v2` (384-dimensional)
+- Vector index: FAISS `IndexFlatIP`
+- Dimensionality reduction: UMAP (`metric=cosine`)
+- Clustering: HDBSCAN (auto) or KMeans (manual)
+- Network metrics: PageRank + Betweenness (`networkx`)
+- Community detection: Louvain (`python-louvain`)
+- LLM provider: Anthropic Claude Sonnet
 
-## Semantic Search Examples
+## Repository Structure
 
-| Query | Top Result | Why Correct |
-|---|---|---|
-| "people organizing against authority" | r/Anarchism book club post | Semantic match on anarchist themes without keyword overlap |
-| "community reading recommendations" | "What Are You Reading/Book Club Tuesday" | Matches intent without using "book" or "club" in query |
-| "weekly collective discussion thread" | AutoModerator stickied posts | Matches recurring community discussion pattern |
-
-## Design Decisions
-
-- Used DuckDB instead of a server DB to keep local setup simple and reproducible for research workflows.
-- Chose FAISS `IndexFlatIP` on normalized vectors for fast, deterministic cosine-like semantic retrieval.
-- Implemented both HDBSCAN auto clustering and controllable `n_clusters` mode to support exploratory analysis and reproducible experiments.
-- Built a dense dark terminal-style UI with modular React components so charts, network, and chat can evolve independently.
-
-## Video Walkthrough
-
-- Add your YouTube or Google Drive walkthrough link after recording.
+```text
+.
+├── app.py                  # Streamlit app entrypoint
+├── shared.py               # Cached data/index/network loaders
+├── ui.py                   # Shared responsive UI styles
+├── pages/                  # Streamlit multipage views
+├── backend/                # Data loading + ML + LLM modules
+├── render.yaml             # Render deployment config
+└── Procfile                # Process startup command
+```
 
 ## Local Setup
 
-1. Clone repository and move into project directory.
-2. Backend setup:
+1. Clone the repository and move into the project directory.
+2. Create and activate a virtual environment.
+3. Install dependencies.
+4. Add environment variables.
+5. Run Streamlit.
 
 ```bash
-cd backend
 python -m venv .venv
 source .venv/Scripts/activate
 pip install -r requirements.txt
-cp .env.example .env
-# set ANTHROPIC_API_KEY in .env
-uvicorn main:app --reload
+cp backend/.env.example .env
+streamlit run app.py
 ```
 
-3. Frontend setup:
+Open: http://localhost:8501
 
-```bash
-cd ../frontend
-npm install
-cp .env.example .env
-npm run dev
+## Required Environment Variables
+
+```env
+ANTHROPIC_API_KEY=your_key_here
+DATA_PATH=./backend/data.jsonl
+DB_PATH=./narrativescope.db
+INDEX_PATH=./embeddings.index
+ID_MAP_PATH=./id_map.pkl
 ```
 
-4. Open the frontend URL from Vite and ensure it points to backend `http://localhost:8000`.
+## Deployment Guide
+
+### Option A: Streamlit Community Cloud
+
+1. Push repository to GitHub.
+2. Create a new app in Streamlit Cloud.
+3. Set `app.py` as main file.
+4. Add secrets matching the environment variables above.
+
+### Option B: Render
+
+1. Create a new web service from this repository.
+2. Render will detect `render.yaml`.
+3. Set `ANTHROPIC_API_KEY` in environment variables.
+
+## Notes
+
+- First run may take longer while embeddings and index files are generated.
+- Chat mode includes local fallback responses if external LLM credits are unavailable.
