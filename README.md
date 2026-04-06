@@ -109,10 +109,16 @@ ID_MAP_PATH=./id_map.pkl
 
 ### Option A: Streamlit Community Cloud
 
-1. Push repository to GitHub.
-2. Create a new app in Streamlit Cloud.
-3. Set `app.py` as main file.
-4. Add secrets matching the environment variables above.
+1. Open Streamlit Community Cloud: https://share.streamlit.io/
+2. Click **Create app** and select repository:
+  - Repository: `shiven365/research-engineering-intern-assignment`
+  - Branch: `main`
+  - Main file path: `app.py`
+3. Open **Advanced settings** and set Python version to `3.11`.
+4. In **Secrets**, paste values from `.streamlit/secrets.toml.example`.
+5. Click **Deploy**.
+
+After deployment, replace the placeholder URL in the **Publicly Hosted Web Platform** section with your live app URL.
 
 ### Option B: Render
 

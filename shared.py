@@ -22,9 +22,9 @@ load_dotenv(dotenv_path=Path(BACKEND_DIR) / ".env")
 
 # Bridge Streamlit Cloud secrets → os.environ
 try:
-    for key in ["ANTHROPIC_API_KEY"]:
+    for key in ["ANTHROPIC_API_KEY", "DATA_PATH", "DB_PATH", "INDEX_PATH", "ID_MAP_PATH"]:
         if key in st.secrets:
-            os.environ[key] = st.secrets[key]
+            os.environ[key] = str(st.secrets[key])
 except Exception:
     pass
 
