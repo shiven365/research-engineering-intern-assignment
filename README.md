@@ -9,26 +9,20 @@ NarrativeScope is a Streamlit-based social media narrative intelligence platform
 ## Screenshots
 
 Replace these files with your final screenshots in `docs/screenshots/`.
-
 ### 1. Landing Page
-
 ![Landing Page](https://github.com/user-attachments/assets/9f68bad1-b668-4a22-8f47-6ffd88ef32d0)
 
 ### 2. Overview Dashboard
-
-![Overview Dashboard](docs/screenshots/02-overview-dashboard.png)
+![Overview Dashboard](https://github.com/user-attachments/assets/55f69e02-6e7f-46bf-9c67-155fad46bf70)
 
 ### 3. Timeline Analysis
-
-![Timeline Analysis](docs/screenshots/03-timeline-analysis.png)
+![Timeline Analysis](https://github.com/user-attachments/assets/aaf895b0-22ff-477c-ba01-e0c77a0ba95a)
 
 ### 4. Network Explorer
-
-![Network Explorer](docs/screenshots/04-network-explorer.png)
+![Network Explorer](https://github.com/user-attachments/assets/f6249c22-88b5-42fa-af31-f7ea5c0edc46)
 
 ### 5. AI Chat Assistant
-
-![AI Chat Assistant](docs/screenshots/05-ai-chat.png)
+![AI Chat Assistant](https://github.com/user-attachments/assets/c92f6f64-8d97-4d5f-bf84-907b47b5eedc)
 
 ## Key Features
 
