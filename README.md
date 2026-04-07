@@ -12,7 +12,8 @@ Replace these files with your final screenshots in `docs/screenshots/`.
 
 ### 1. Landing Page
 
-![Landing Page](docs/screenshots/01-landing-page.png)
+![Landing Page](<img width="1884" height="980" alt="image" src="https://github.com/user-attachments/assets/9f68bad1-b668-4a22-8f47-6ffd88ef32d0" />
+)
 
 ### 2. Overview Dashboard
 
