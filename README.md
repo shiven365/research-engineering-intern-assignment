@@ -4,7 +4,7 @@ NarrativeScope is a Streamlit-based social media narrative intelligence platform
 
 ## Publicly Hosted Web Platform
 
-- Live URL: https://YOUR-APP-NAME.streamlit.app
+- Live URL: https://research-engineering-intern-assignment-4ggufuhu74u6gfimqmkvd5.streamlit.app/
 
 ## Screenshots
 
